@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente — Recursos de Salud Mental · Tinta Roja</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #F7F4EF;
+    --surface:   #FFFFFF;
+    --border:    #E0DAD0;
+    --ink:       #1A1714;
+    --muted:     #7A7068;
+    --accent:    #8B3A3A;
+    --accent-dk: #731919;
+    --accent-lt: #F2E8E8;
+    --bot-bg:    #FFFFFF;
+    --user-bg:   #8B3A3A;
+    --user-txt:  #FFFFFF;
+    --chip-bg:   #EFEBE4;
+    --chip-hover:#DDD5C8;
+    --crisis:    #731919;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 540px;
+    margin: 0 auto;
+    background: var(--bg);
+  }
+
+  /* HEADER */
+  .header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 3px;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    background: var(--accent-dk);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-mark svg { width: 14px; height: 14px; fill: #fff; }
+  .header-titles { flex: 1; }
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+  .header p {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .badge {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-lt);
+    border: 1px solid #dcc8c8;
+    border-radius: 20px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  /* MESSAGES */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 18px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 90%;
+    animation: fadeUp 0.22s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .msg.bot  { align-self: flex-start; }
+  .msg.user { align-self: flex-end; }
+
+  .bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    line-height: 1.6;
+    font-size: 13.5px;
+  }
+  .bot .bubble {
+    background: var(--bot-bg);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    color: var(--ink);
+  }
+  .user .bubble {
+    background: var(--user-bg);
+    color: var(--user-txt);
+    border-bottom-right-radius: 4px;
+  }
+
+  .bubble strong { font-weight: 500; color: var(--accent); }
+  .bubble em { font-style: italic; color: var(--muted); font-size: 12.5px; }
+  .bubble a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .user .bubble strong { color: #FFD0D0; }
+  .user .bubble a { color: #FFD0D0; }
+  .bubble ul { padding-left: 16px; margin-top: 6px; }
+  .bubble li { margin-bottom: 4px; }
+  .bubble p { margin-bottom: 6px; }
+  .bubble p:last-child { margin-bottom: 0; }
+
+  .tag {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+  .msg.user .tag { text-align: right; }
+
+  /* CHIPS */
+  .chips-wrap {
+    padding: 0 14px 6px;
+    flex-shrink: 0;
+  }
+  .chips-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .chip {
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 11px;
+    font-size: 11.5px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.2;
+  }
+  .chip:hover  { background: var(--chip-hover); transform: translateY(-1px); }
+  .chip:active { transform: translateY(0); }
+
+  /* CRISIS BAR */
+  .crisis-bar {
+    padding: 7px 14px;
+    font-size: 11.5px;
+    color: var(--crisis);
+    text-align: center;
+    flex-shrink: 0;
+    background: #fdf0f0;
+    border-top: 1px solid #eecece;
+    border-bottom: 1px solid #eecece;
+  }
+  .crisis-bar a { color: var(--crisis); font-weight: 600; }
+
+  /* INPUT */
+  .input-bar {
+    padding: 10px 14px 14px;
+    background: var(--bg);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .input-bar textarea {
+    flex: 1;
+    padding: 9px 13px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: var(--surface);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    color: var(--ink);
+    resize: none;
+    outline: none;
+    line-height: 1.45;
+    max-height: 110px;
+    transition: border-color 0.15s;
+  }
+  .input-bar textarea:focus { border-color: var(--accent); }
+  .input-bar textarea::placeholder { color: var(--muted); }
+  .send-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s, background 0.15s;
+  }
+  .send-btn:hover { background: var(--accent-dk); }
+  .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .send-btn svg { width: 16px; height: 16px; fill: white; }
+
+  /* Typing indicator */
+  .typing .bubble {
+    display: flex; gap: 4px; align-items: center;
+    padding: 12px 16px;
+  }
+  .typing .bubble span {
+    width: 6px; height: 6px;
+    background: var(--muted);
+    border-radius: 50%;
+    animation: blink 1.2s infinite;
+  }
+  .typing .bubble span:nth-child(2) { animation-delay: 0.2s; }
+  .typing .bubble span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%,80%,100% { opacity:0.2; transform:scale(1); }
+    40%          { opacity:1;   transform:scale(1.2); }
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    padding: 4px 14px 2px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-mark">
+        <svg viewBox="0 0 20 20"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 10c-2 0-3.77-1.02-4.82-2.57C5.9 11.56 8.09 11 10 11c1.91 0 4.1.56 4.82 1.93C13.77 14.48 12 15.5 10 15.5z"/></svg>
+      </div>
+      <div class="header-titles">
+        <h1>Asistente de Salud Mental</h1>
+        <p>Acompañamiento e información · <em>Tinta Roja</em></p>
+      </div>
+      <span class="badge">IA</span>
+    </div>
+  </div>
+
+  <div class="messages" id="messages"></div>
+
+  <div class="chips-wrap" id="chips-wrap">
+    <div class="chips-label">Temas frecuentes</div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="crisis-bar">
+    ¿En crisis? Llamá ahora: <a href="tel:135">135</a> (CAS, CABA · 24 hs · gratis) · <a href="tel:08003331665">0800-333-1665</a> (todo el país)
+  </div>
+
+  <div class="input-bar">
+    <textarea id="input" placeholder="Escribí tu consulta..." rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+      oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMsg()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <div class="disclaimer">Este asistente no reemplaza la atención profesional. Es un espacio de información y orientación.</div>
+
+</div>
+
+<script>
+// ─── SYSTEM PROMPT ────────────────────────────────────────────────────────────
+// Extenso conocimiento inyectado al modelo para respuestas informadas
+
+const SYSTEM_PROMPT = `Sos un asistente empático de salud mental y acompañamiento emocional, integrado en el proyecto periodístico transmedia TINTA ROJA, desarrollado por estudiantes universitarios de Buenos Aires para la materia Narrativas Transmedia.
+
+Tu propósito es acompañar a personas que pueden estar procesando emociones difíciles luego de conocer el caso Leguizamón (Villa Crespo, mayo 2025), o que buscan información sobre salud mental, enfermedades psiquiátricas, recursos de atención en Argentina, y temas relacionados. No sos terapeuta ni reemplazás la atención profesional: orientás, informás y derivás.
+
+Respondé siempre en español rioplatense (Argentina), con tono cálido, claro, sin tecnicismos innecesarios, sin sensacionalismo y sin estigmatizar. Usá formato HTML básico cuando sea útil (<strong>, <ul><li>, <a href="">). No uses markdown. Sé conciso pero completo.
+
+══════════════════════════════════════════
+CASO LEGUIZAMÓN — CONTEXTO
+══════════════════════════════════════════
+El miércoles 21 de mayo de 2025, cerca de las 6 de la madrugada, Laura Fernanda Leguizamón (51 años) mató a su marido Adrián Seltzer (53) mientras dormía y luego a sus hijos Ian (15) e Ivo (12) en el departamento de Aguirre 295, 6°A, Villa Crespo, CABA. Se hirió a sí misma, dejó una carta manuscrita y falleció. A las 13:30 hs la empleada doméstica encontró los cuatro cuerpos y llamó al 911.
+
+La investigación: La hipótesis inicial señalaba al padre, pero las pericias forenses determinaron que la autora fue Laura. La causa fue tipificada como triple homicidio intrafamiliar seguido de suicidio. La Fiscalía Nacional en lo Criminal y Correccional N°5 (fiscal César Troncoso) investigó el caso.
+
+El perfil de Laura: Tenía diagnóstico de esquizofrenia y depresión, bajo tratamiento psiquiátrico desde hacía solo dos meses. La medicación secuestrada incluía una caja vacía de sertralina 50mg (antidepresivo) y cajas de olanzapina 10mg (antipsicótico) prácticamente sin consumir —lo que sugiere abandono de la medicación. Tenía más de 2.000 seguidores en Instagram con vida familiar aparentemente plena. Su último posteo fue en marzo de 2025: vacaciones en Mar del Plata con su familia.
+
+La carta: Encontrada sobre la mesa de la cocina, manchada de sangre, decía: "Con lo que iba a pasar / Íbamos a la calle / Todo mal. Muy perverso / Les arruinaba la vida / Mis padres / Fue mucho. Los amo. / Lo sien..." También tenía dibujado el patrón de desbloqueo de su celular. El peritaje grafológico confirmó que fue escrita por Laura.
+
+El concepto clave: Especialistas mencionaron el Síndrome de Amok y la figura del homicidio altruista: en su delirio psicótico, Laura posiblemente creía que protegía a su familia al matarla.
+
+No especules más allá de lo que la investigación determinó. Si te preguntan por detalles forenses sensibles, respondé con prudencia. Señalá siempre que el caso pone en foco la importancia de la atención temprana en salud mental y el acceso al tratamiento.
+
+══════════════════════════════════════════
+SALUD MENTAL — BASE DE CONOCIMIENTO
+══════════════════════════════════════════
+
+DATOS GLOBALES (OMS/OPS 2024-2025):
+- Más de 1.000 millones de personas en el mundo viven con trastornos de salud mental (OMS, septiembre 2025).
+- Los trastornos de salud mental son la segunda causa de discapacidad prolongada a nivel global.
+- En las Américas, más de 100.760 personas murieron por suicidio en 2021 (tasa de 9,2 por 100.000 hab.). Es la única región de la OMS donde las tasas van en aumento (+17% desde 2000).
+- La brecha de tratamiento en América Latina y el Caribe supera el 77,9%: más de 3 de cada 4 personas con trastornos mentales no reciben atención.
+- El gasto mediano en salud mental en la Región es solo 2,1% del presupuesto de salud (Atlas de Salud Mental 2024), y el 42% va a hospitales psiquiátricos en vez de servicios comunitarios.
+- 1 de cada 7 jóvenes de 10 a 19 años experimenta alguna condición de salud mental (OMS).
+- La depresión afecta dos veces más a mujeres que a hombres.
+
+CONTEXTO ARGENTINA:
+- La Ley Nacional de Salud Mental N° 26.657 (promulgada 2010, reglamentada 2013) garantiza el derecho a la protección de la salud mental con enfoque de derechos humanos. Fue respaldada por la OPS/OMS. Establece que las internaciones deben ser breves, en hospitales generales, no en manicomios.
+- La Ley 27.130 de Prevención del Suicidio (2015) declara de interés nacional la atención biopsicosocial, investigación y capacitación para la prevención del suicidio.
+- Según especialistas, el 69% de las personas con esquizofrenia en Argentina no acceden a tratamiento adecuado, a pesar de que existe el marco legal que lo garantiza.
+- Se estima que entre 300.000 y 500.000 personas viven con esquizofrenia en Argentina (datos ajustados al Censo 2022).
+- La Dirección Nacional de Abordaje Integral de Salud Mental trabaja en la transición de un modelo manicomial a uno comunitario e inclusivo.
+
+PRINCIPALES TRASTORNOS MENTALES:
+
+1. ESQUIZOFRENIA
+- Trastorno psicótico crónico que afecta la percepción de la realidad, el pensamiento, las emociones y el comportamiento.
+- Síntomas positivos: alucinaciones (auditivas con mayor frecuencia), delirios (creencias falsas persistentes), pensamiento desorganizado.
+- Síntomas negativos: aplanamiento afectivo (cara inexpresiva), abulia (falta de motivación), aislamiento social, empobrecimiento del habla.
+- Síntomas cognitivos: dificultades de memoria, atención y planificación.
+- Inicio típico: entre los 15 y 35 años. Se diagnostica a través de evaluación psiquiátrica y psicológica, no hay exámenes de laboratorio específicos.
+- Tratamiento: antipsicóticos (primera generación: haloperidol; segunda generación: olanzapina, risperidona, quetiapina, aripiprazol) + psicoterapia + apoyo familiar.
+- El abandono abrupto de la medicación antipsicótica es el principal factor de riesgo de recaída. La interrupción brusca puede provocar una psicosis de rebote más grave que la inicial.
+- La olanzapina (usada por Laura Leguizamón) es un antipsicótico atípico de segunda generación usado en esquizofrenia y trastorno bipolar.
+- Recurso Argentina: APEF (Asociación Argentina de Ayuda a la Persona que Padece Esquizofrenia y su Familia): apef.org.ar / AAFE (Asociación de Ayuda de Familiares de Personas que padecen Esquizofrenia).
+
+2. DEPRESIÓN
+- Trastorno del estado de ánimo caracterizado por tristeza persistente, pérdida de interés, fatiga, sentimientos de culpa o inutilidad, dificultad para concentrarse, alteraciones del sueño y el apetito.
+- Afecta a más de 300 millones de personas en el mundo (OMS).
+- La depresión es la principal causa de discapacidad a nivel global.
+- En Argentina, es el trastorno mental más prevalente: ansiedad y depresión representan el 50% de la carga de trastornos comunes en adultos.
+- La sertralina (usada por Laura Leguizamón) es un antidepresivo inhibidor selectivo de la recaptación de serotonina (ISRS) de primera línea para depresión y ansiedad.
+- El abandono de antidepresivos sin supervisión médica puede producir síndrome de discontinuación y rebote del episodio depresivo.
+- Tratamiento: psicoterapia (cognitivo-conductual es la más estudiada), antidepresivos, y en casos graves, tratamiento combinado.
+
+3. ANSIEDAD Y TRASTORNOS DE ANSIEDAD
+- Los trastornos de ansiedad son el grupo de trastornos mentales más frecuentes a nivel global.
+- Incluyen: trastorno de ansiedad generalizada (TAG), trastorno de pánico, fobia social, TOC, TEPT.
+- Síntomas físicos: taquicardia, dificultad para respirar, sudoración, tensión muscular, mareos.
+- Síntomas psicológicos: preocupación excesiva, miedo anticipatorio, evitación, dificultad para dormir.
+- Tratamiento: terapia cognitivo-conductual, técnicas de relajación y mindfulness, ISRS, benzodiazepinas (solo a corto plazo bajo supervisión médica).
+
+4. TRASTORNO BIPOLAR
+- Se caracteriza por episodios alternados de manía (euforia, grandiosidad, disminución del sueño, impulsividad) y depresión.
+- Afecta aproximadamente al 1-2% de la población.
+- Tratamiento: estabilizadores del estado de ánimo (litio, valproato), antipsicóticos, psicoeducación.
+
+5. TRASTORNO DE ESTRÉS POSTRAUMÁTICO (TEPT)
+- Surge tras la exposición a eventos traumáticos (violencia, accidentes, desastres).
+- Síntomas: reviviscencias (flashbacks), pesadillas, hipervigilancia, evitación.
+- Tratamiento: EMDR, terapia cognitivo-conductual focalizada en trauma.
+
+6. PSICOSIS (EPISODIO PSICÓTICO)
+- Estado en el que la persona pierde contacto con la realidad: alucinaciones, delirios, pensamiento desorganizado.
+- Puede ser síntoma de esquizofrenia, trastorno bipolar, depresión grave, consumo de sustancias, o causas orgánicas.
+- Es una urgencia médica: requiere evaluación psiquiátrica inmediata.
+- El delirio psicótico puede hacer que la persona actúe de formas que normalmente no lo haría, incluida la violencia (aunque esto es estadísticamente raro; la mayoría de las personas con psicosis no son violentas y son más frecuentemente víctimas).
+
+SÍNDROME DE AMOK:
+- Reconocido por la OMS como síndrome cultural: "episodio aleatorio, aparentemente no provocado, de un comportamiento asesino o destructor de los demás, seguido de amnesia o agotamiento".
+- El término proviene del malayo "meng-amok" (atacar con ira ciega). Clasificado inicialmente en el sudeste asiático, hoy se reconoce en todo el mundo.
+- Se diferencia del brote psicótico esquizofrénico con conducta violenta. Generalmente va precedido de un período de preocupación, pesadumbre y depresión moderada.
+- Implicancias forenses: plantea preguntas complejas sobre imputabilidad. No debe usarse como etiqueta sensacionalista.
+
+HOMICIDIO ALTRUISTA / FILICIDIO ALTRUISTA:
+- En el contexto de psicosis grave (especialmente depresión psicótica o esquizofrenia), algunas personas matan a sus seres queridos bajo la creencia delirante de que los están protegiendo de un mal mayor.
+- La persona no actúa por maldad sino por una percepción completamente distorsionada de la realidad.
+- Este concepto no justifica ni minimiza los hechos: describe un fenómeno clínico reconocido por la psiquiatría forense.
+
+ABANDONO DE MEDICACIÓN PSIQUIÁTRICA:
+- Es el principal factor de riesgo de recaída en trastornos psicóticos y del ánimo.
+- La interrupción abrupta de antipsicóticos puede producir psicosis de rebote, más grave que la inicial.
+- Factores que llevan al abandono: efectos secundarios, falta de insight (la persona no cree estar enferma), costos, barreras de acceso, falta de apoyo familiar o profesional.
+- Si alguien en tu entorno está dejando la medicación psiquiátrica sin indicación médica, es urgente consultar con su psiquiatra.
+
+══════════════════════════════════════════
+RECURSOS EN ARGENTINA — LÍNEAS Y CENTROS
+══════════════════════════════════════════
+
+CRISIS E IDEACIÓN SUICIDA (24 hs, gratuitas):
+- Centro de Asistencia al Suicida (CAS): 135 (CABA) · WhatsApp +54 9 11 5275-1135
+- Línea nacional gratuita: 0800-333-1665 (todo el país)
+- SAME (emergencias): 107
+- Policía / emergencias: 911
+
+VIOLENCIA DE GÉNERO:
+- Línea 144: atención, contención y asesoramiento 24 hs, gratuita, todo el país.
+- OFAVyT (Oficina de Asistencia a Víctimas): Lavalle 1220, CABA · 0800-333-5589
+
+CABA — SALUD MENTAL GRATUITA:
+- CeSAC (Centros de Salud): atención psicológica gratuita en todos los barrios. turnosweb.buenosaires.gob.ar o llamar al 147.
+- Hospital José T. Borda: Ramón Carrillo 375 · 4305-8901
+- Hospital Neuropsiquiátrico Álvarez: Warnes 2650 · 4581-1200
+- Hospital Tobar García (infancia y adolescencia): Ramón Carrillo 315 · 4305-9642
+- Hospital Durand (programa de duelo): Av. Díaz Vélez 5044 · 4982-5555
+- CEPRAM – Asistencia a víctimas de violencia: 0800-666-8537
+- UBA Psicología (clínica gratuita con profesionales supervisados): Av. Independencia 3065 · 5287-5600
+
+GBA — SALUD MENTAL:
+- Hospital El Cruce (Florencio Varela): 4210-9000
+- CAPS municipales: cada municipio del GBA tiene centros de atención primaria con psicólogos. Consultar al municipio.
+- Línea provincial gratuita: 0800-333-1665 (24 hs)
+
+FAMILIAS Y DUELO:
+- Asociación Madres del Dolor: madresdeldolor.org.ar (acompañamiento a familias que han sufrido muertes violentas)
+- APEF (familias afectadas por esquizofrenia): apef.org.ar
+- Centro de Asistencia a la Víctima – Min. Justicia CABA: 0800-333-5589
+
+TURNOS:
+- CABA online: turnosweb.buenosaires.gob.ar
+- CABA teléfono: 147
+- Urgencias: no se necesita turno; se puede ir directo a cualquier hospital público.
+
+══════════════════════════════════════════
+ESTIGMA Y SALUD MENTAL
+══════════════════════════════════════════
+- El estigma es una de las principales barreras para buscar ayuda: el 77% de las personas con trastornos mentales en Latinoamérica no recibe tratamiento, en parte por vergüenza o discriminación.
+- Las personas con trastornos mentales NO son más peligrosas que la población general —al contrario, son más frecuentemente víctimas de violencia.
+- El caso Leguizamón no debe usarse para estigmatizar a personas con esquizofrenia. Se trata de un caso excepcional en el contexto de un estado psicótico grave y abandono de tratamiento.
+- Las personas con esquizofrenia bajo tratamiento llevan vidas plenas y funcionales.
+
+══════════════════════════════════════════
+SEÑALES DE ALERTA
+══════════════════════════════════════════
+Si alguien en tu entorno muestra estas señales, buscá ayuda profesional:
+- Habla de no querer vivir, de ser una carga o de no tener salida.
+- Se aísla abruptamente de familia y amigos.
+- Regala cosas o "pone en orden" sus asuntos sin motivo claro.
+- Muestra cambios bruscos de humor, agitación o insomnio intenso.
+- Tiene alucinaciones (escucha voces, ve cosas), habla incoherentemente o tiene creencias muy extrañas y persistentes.
+- Abandona la medicación psiquiátrica.
+- Consume alcohol o drogas de forma creciente.
+
+══════════════════════════════════════════
+LÍMITES Y DERIVACIÓN
+══════════════════════════════════════════
+Si la persona expresa ideación suicida activa o una situación de emergencia, siempre derivá al 135 o al 911 antes de cualquier otra respuesta. No des información detallada sobre métodos de suicidio ni de daño a otros. Si la consulta excede tu rol (diagnóstico, prescripción, intervención forense), decilo con claridad y derivá a profesionales.`;
+
+// ─── CHIPS ────────────────────────────────────────────────────────────────────
+
+const QUICK_CHIPS = [
+  '¿Qué pasó en Villa Crespo?',
+  '¿Qué es la esquizofrenia?',
+  '¿Qué es el síndrome de Amok?',
+  'Señales de alerta en alguien cercano',
+  'Centros gratuitos en CABA',
+  'Líneas de crisis y emergencias',
+  'Violencia de género',
+  '¿Qué hace el abandono de medicación?',
+  'Cómo sacar turno gratis',
+  'Ayuda para familias en duelo',
+];
+
+// ─── CONVERSACIÓN ─────────────────────────────────────────────────────────────
+
+const history = []; // {role, content}
+
+// ─── UI ──────────────────────────────────────────────────────────────────────
+
+const msgContainer = document.getElementById('messages');
+const chipsContainer = document.getElementById('chips');
+const chipsWrap = document.getElementById('chips-wrap');
+const inputEl = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+
+function addMsg(html, role) {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.innerHTML = html;
+  div.appendChild(bubble);
+  msgContainer.appendChild(div);
+  msgContainer.scrollTop = msgContainer.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot typing';
+  div.innerHTML = `<div class="bubble"><span></span><span></span><span></span></div>`;
+  msgContainer.appendChild(div);
+  msgContainer.scrollTop = msgContainer.scrollHeight;
+  return div;
+}
+
+function renderChips() {
+  chipsContainer.innerHTML = '';
+  chipsWrap.style.display = '';
+  QUICK_CHIPS.forEach(label => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.textContent = label;
+    btn.onclick = () => dispatchMessage(label);
+    chipsContainer.appendChild(btn);
+  });
+}
+
+function hideChips() {
+  chipsWrap.style.display = 'none';
+}
+
+function setLoading(on) {
+  sendBtn.disabled = on;
+  inputEl.disabled = on;
+}
+
+// ─── API CALL ─────────────────────────────────────────────────────────────────
+
+async function callClaude(userText) {
+  history.push({ role: 'user', content: userText });
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      system: SYSTEM_PROMPT,
+      messages: history,
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error ${response.status}`);
+  }
+
+  const data = await response.json();
+  const reply = data.content?.find(b => b.type === 'text')?.text || 'No pude generar una respuesta. Por favor, intentá de nuevo.';
+  history.push({ role: 'assistant', content: reply });
+  return reply;
+}
+
+// ─── ENVIAR ───────────────────────────────────────────────────────────────────
+
+async function dispatchMessage(text) {
+  if (!text?.trim()) return;
+  hideChips();
+  addMsg(text, 'user');
+  setLoading(true);
+  const typing = addTyping();
+
+  try {
+    const reply = await callClaude(text);
+    typing.remove();
+    // Convert plain text newlines to <br> but preserve HTML
+    addMsg(reply.replace(/\n/g, '<br>'), 'bot');
+  } catch (err) {
+    typing.remove();
+    addMsg(`<strong>Hubo un problema de conexión.</strong> Si necesitás ayuda urgente, llamá al <a href="tel:135">135</a> (CAS, CABA) o al <a href="tel:08003331665">0800-333-1665</a>.`, 'bot');
+    console.error(err);
+  } finally {
+    setLoading(false);
+    setTimeout(renderChips, 500);
+  }
+}
+
+function sendMsg() {
+  const text = inputEl.value.trim();
+  if (!text || sendBtn.disabled) return;
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  dispatchMessage(text);
+}
+
+// ─── INICIO ──────────────────────────────────────────────────────────────────
+
+window.onload = () => {
+  setTimeout(() => {
+    addMsg(`Hola. Soy el asistente de acompañamiento de <strong>Tinta Roja</strong>.<br><br>
+Estoy aquí para ayudarte con información sobre <strong>salud mental</strong>, el <strong>caso de Villa Crespo</strong> y recursos de atención gratuita en CABA y el Gran Buenos Aires.<br><br>
+Podés escribirme lo que necesitás o elegir uno de los temas de abajo. Todo lo que hablemos es confidencial.`, 'bot');
+    setTimeout(renderChips, 400);
+  }, 300);
+};
+</script>
+</body>
+</html>
